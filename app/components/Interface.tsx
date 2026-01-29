@@ -14,7 +14,7 @@ export default function Interface()
         switch(id) {
             case 'player': return 'slateblue'
             case 'ally-1': return 'orange'
-            case 'ally-2': return 'mediumpurple'
+            case 'ally-2': return 'pink'
             default: return 'white'
         }
     }
@@ -56,7 +56,7 @@ export default function Interface()
         },[])
 
     return <div className="interface fixed inset-0 w-full h-full font-sans font-normal pointer-events-none">
-        <div ref={ time } className="time absolute top-[15%] left-0 w-full py-[10px] bg-[#00000033] flex items-center justify-center text-white text-6xl pointer-events-none">0.00</div>
+        <div ref={ time } className="time absolute top-[15%] right-[15%] py-[10px] flex text-grey text-3xl pointer-events-none font-bold tracking-widest">0.00</div>
         
         {/* Squad Status Panel */}
         <div className="absolute top-10 left-10 flex flex-col gap-4">
@@ -100,12 +100,6 @@ export default function Interface()
             ))}
         </div>
 
-        {/* Controls Hint */}
-        <div className="absolute bottom-10 left-10 text-white/50 text-xs font-mono space-y-1">
-            <div>WASD / Arrows to Move</div>
-            <div>SPACE to Jump</div>
-            <div>Q to Switch Character</div>
-        </div>
 
         {phase === 'ended' ? <div className="restart absolute top-[40%] left-0 w-full py-[10px] bg-[#00000033] flex items-center justify-center text-white text-[80px] pointer-events-auto cursor-pointer" onClick={ restart }>RESTART</div> : null}
     </div>

@@ -40,11 +40,10 @@ export default function Experience() {
       <color args={ [ '#bdedfc']} attach="background"/>
       <Physics>
         <Lights />
-        <Level count={blocksCount} seed={blocksSeed}/>
+        <Level/>
         <Character id="player" position={[0, 1, 0]} color="slateblue" />
         <Character id="ally-1" position={[-2, 1, 0]} color="orange" />
-        <Character id="ally-2" position={[2, 1, 0]} color="mediumpurple" />
-        <Character id="ally-3" position={[4, 1, 0]} color="blue" />
+        <Character id="ally-2" position={[2, 1, 0]} color="hotpink" />
         <CameraController />
         <GridBaker />
         {/* <GridDebug /> */}

@@ -23,7 +23,7 @@ export default function Page() {
           className="pointer-events-none"
           shadows
           camera={{
-            fov: 45,
+            fov: 60,
             near: 0.1,
             far: 200,
             position: [2.5, 4, 6],
