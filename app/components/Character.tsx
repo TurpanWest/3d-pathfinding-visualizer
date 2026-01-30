@@ -34,6 +34,28 @@ export default function Character({ id, position, color = "slateblue" }: Charact
     const [path, setPath] = useState<GridNode[]>([])
     const [targetNode, setTargetNode] = useState<GridNode | null>(null)
 
+    // Audio
+    const [audio, setAudio] = useState<HTMLAudioElement | null>(null)
+    const [jumpSound] = useState(() => new Audio('/jumping.wav'))
+
+    useEffect(() => {
+        const a = new Audio('/ballrolling.wav')
+        a.loop = true
+        setAudio(a)
+        return () => {
+            a.pause()
+        }
+    }, [])
+
+    useEffect(() => {
+        if(audio) {
+            if (!isActive) {
+                audio.volume = 0
+                if (!audio.paused) audio.pause()
+            }
+        }
+    }, [isActive, audio])
+
     const jump = () =>
     {
         const origin = body.current.translation()
@@ -45,6 +67,8 @@ export default function Character({ id, position, color = "slateblue" }: Charact
         if (hit.timeOfImpact < 0.15)
         {
             body.current.applyImpulse({ x:0, y:0.5, z:0})
+            jumpSound.currentTime = 0
+            jumpSound.play().catch(() => {})
         }
     }
     
@@ -199,6 +223,22 @@ export default function Character({ id, position, color = "slateblue" }: Charact
             }
         }
         
+        // Audio Control
+        if (audio && isActive) {
+            const currentVel = body.current.linvel()
+            const speed = Math.sqrt(currentVel.x * currentVel.x + currentVel.z * currentVel.z)
+            
+            const maxSpeed = 5
+            const volume = Math.min(speed / maxSpeed, 1)
+            audio.volume = volume
+            
+            if (speed > 0.5) {
+                if (audio.paused) audio.play().catch(() => {})
+            } else {
+                if (!audio.paused) audio.pause()
+            }
+        }
+
         // 3. Game Logic (Win/Lose)
         if (bodyPosition.z < -(blocksCount * 4 + 2))
         {

@@ -23,8 +23,8 @@ export default function Interface()
     const getCharacterRole = (id: string) => {
         switch(id) {
             case 'player': return 'LEADER'
-            case 'ally-1': return 'SCOUT'
-            case 'ally-2': return 'HEAVY'
+            case 'ally-1': return 'Astar'
+            case 'ally-2': return 'Dijkstra'
             default: return 'UNIT'
         }
     }
@@ -56,11 +56,10 @@ export default function Interface()
         },[])
 
     return <div className="interface fixed inset-0 w-full h-full font-sans font-normal pointer-events-none">
-        <div ref={ time } className="time absolute top-[15%] right-[15%] py-[10px] flex text-grey text-3xl pointer-events-none font-bold tracking-widest">0.00</div>
         
-        {/* Squad Status Panel */}
         <div className="absolute top-10 left-10 flex flex-col gap-4">
-            <div className="text-white/80 text-sm font-bold tracking-widest mb-1">SQUAD STATUS</div>
+            <div className="text-[#404040] text-xl font-bold tracking-widest mb-4">Time</div>
+            <div ref={ time } className="time absolute py-2.5 flex text-[#404040] text-2xl pointer-events-none font-bold tracking-widest mt-4">0.00</div>
             
             {['player', 'ally-1', 'ally-2'].map((id) => (
                 <div 
@@ -74,7 +73,7 @@ export default function Interface()
                 >
                     {/* Character Avatar/Color */}
                     <div 
-                        className="w-10 h-10 rounded-full shadow-inner flex items-center justify-center font-bold text-white text-xs border-2 border-white/20"
+                        className="w-10 h-10 rounded-full shadow-inner flex items-center justify-center font-bold text-[#404040] text-xs border-2 border-white/20"
                         style={{ backgroundColor: getCharacterColor(id) }}
                     >
                         {id === 'player' ? 'L' : id === 'ally-1' ? 'S' : 'H'}
@@ -82,25 +81,19 @@ export default function Interface()
 
                     {/* Info */}
                     <div className="flex flex-col">
-                        <span className={`text-sm font-bold tracking-wide ${activeCharacterId === id ? 'text-white' : 'text-white/60'}`}>
+                        <span className={`text-sm font-bold tracking-wide ${activeCharacterId === id ? 'text-[#404040]' : 'text-white/60'}`}>
                             {getCharacterRole(id)}
                         </span>
-                        <span className="text-[10px] uppercase text-white/40 tracking-wider">
+                        <span className="text-[10px] uppercase text-[#404040] tracking-wider">
                             {activeCharacterId === id ? 'ACTIVE CONTROL' : 'AUTONOMOUS'}
                         </span>
                     </div>
 
-                    {/* Key Hint */}
-                    {activeCharacterId === id && (
-                        <div className="ml-4 px-2 py-1 bg-white/10 rounded text-[10px] text-white/80 font-mono animate-pulse">
-                            Q to Swap
-                        </div>
-                    )}
                 </div>
             ))}
         </div>
 
 
-        {phase === 'ended' ? <div className="restart absolute top-[40%] left-0 w-full py-[10px] bg-[#00000033] flex items-center justify-center text-white text-[80px] pointer-events-auto cursor-pointer" onClick={ restart }>RESTART</div> : null}
+        {phase === 'ended' ? <div className="restart absolute top-[40%] left-0 w-full py-2.5 bg-[#00000033] flex items-center justify-center text-white text-[80px] pointer-events-auto cursor-pointer" onClick={ restart }>RESTART</div> : null}
     </div>
  }

@@ -52,6 +52,7 @@ export function Dynamic( {position= [0,0,0]} : {position: [number, number, numbe
 
     useFrame((state) =>
     {
+        if (!obstacale.current) return
         const time = state.clock.getElapsedTime()
         const y = Math.sin(time + timeOffset)
         obstacale.current.setNextKinematicTranslation( {x: position[0], y: position[1]+ y * 1 ,z: position[2]})
@@ -110,7 +111,7 @@ export function Floor()
     </group>
 }
 
-function Bounds({length =1})
+export function Bounds({length =1})
 {
     return <RigidBody type='fixed' restitution={0.2} friction={0}>
         <mesh 
@@ -134,12 +135,9 @@ function Bounds({length =1})
         scale={[ 2 * length, 4, 0.2 ]} 
         receiveShadow
         />
-        <mesh 
-        geometry={boxGeometry}
-        material={wallMaterial} 
-        position={ [ 0, 0.5, length] } 
-        scale={[ 2 * length, 1, 0.2 ]} 
-        receiveShadow
+        <CuboidCollider 
+            args={[length, 2, 0.1]} 
+            position={[ 0, 0.5, length]} 
         />
     </RigidBody>
 }
@@ -177,7 +175,7 @@ export function Level()
         <Dynamic position={[-3.5, 0.5, 4]}/>
         <Floor />
         <Bounds length={ 20 }/>
-        <Speaker position={[-10, -3, -15]} rotation={[0, Math.PI/6, 0]}/>
+        {/* <Speaker position={[-10, -3, -15]} rotation={[0, Math.PI/6, 0]}/> */}
 
     </>
 }
