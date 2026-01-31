@@ -2,48 +2,56 @@ import { useFrame } from "@react-three/fiber"
 import { useState } from "react"
 import * as THREE from "three"
 import useGame from "./stores/useGame"
+import useLevelStore from "./stores/useLevelStore"
 
 export default function CameraController() {
     const activeCharacterId = useGame((state) => state.activeCharacterId)
+    const isEditMode = useLevelStore((state) => state.isEditMode)
     
     // We keep the smoothed position state here, persisting across character switches
     const [smoothedCameraPosition] = useState(() => new THREE.Vector3(10, 10, 10))
     const [smoothedCameraTarget] = useState(() => new THREE.Vector3(0, 0, 0))
 
     useFrame((state, delta) => {
-        // 1. Find the active character in the scene
-        // We can't rely on Zustand position alone because it might be throttled (0.1s update)
-        // We need smooth per-frame updates.
-        // Since we named our RigidBodies in Character.tsx with `name={id}`, we can try to find them.
-        // However, RigidBody adds a group/object. Let's hope we can find it.
         
-        // Actually, Rapier RigidBody `name` prop might not propagate to the THREE.Object3D in the way we expect for easy querying if it's nested.
-        // But let's try querying by name.
-        
-        const characterObject = state.scene.getObjectByName(activeCharacterId)
-        
-        if (characterObject) {
-            // Get world position of the character
-            // Note: RigidBody updates the mesh position, so this should be accurate.
-            const bodyPosition = characterObject.getWorldPosition(new THREE.Vector3())
+        let targetPosition = new THREE.Vector3()
+        let targetLookAt = new THREE.Vector3()
 
-            // 2. Calculate desired camera position & target
-            const cameraPosition = new THREE.Vector3()
-            cameraPosition.copy(bodyPosition)
-            cameraPosition.z += 5
-            cameraPosition.y += 5
+        if (isEditMode) {
+            // Edit Mode: Top-down view
+            // High altitude, centered on the map (or roughly 0,0,0)
+            targetPosition.set(0, 40, 0)
+            targetLookAt.set(0, 0, 0)
+            
+            // We can still smooth the transition
+            smoothedCameraPosition.lerp(targetPosition, 2 * delta)
+            smoothedCameraTarget.lerp(targetLookAt, 2 * delta)
 
-            const cameraTarget = new THREE.Vector3()
-            cameraTarget.copy(bodyPosition)
-            cameraTarget.y += 0.5 
-
-            // 3. Smoothly lerp
-            smoothedCameraPosition.lerp(cameraPosition, 5 * delta)
-            smoothedCameraTarget.lerp(cameraTarget, 5 * delta)
-
-            // 4. Apply to camera
             state.camera.position.copy(smoothedCameraPosition)
             state.camera.lookAt(smoothedCameraTarget)
+
+        } else {
+            // Play Mode: Follow Character
+            const characterObject = state.scene.getObjectByName(activeCharacterId)
+            
+            if (characterObject) {
+                const bodyPosition = characterObject.getWorldPosition(new THREE.Vector3())
+    
+                targetPosition.copy(bodyPosition)
+                targetPosition.z += 5
+                targetPosition.y += 5
+    
+                targetLookAt.copy(bodyPosition)
+                targetLookAt.y += 0.5 
+    
+                // 3. Smoothly lerp
+                smoothedCameraPosition.lerp(targetPosition, 5 * delta)
+                smoothedCameraTarget.lerp(targetLookAt, 5 * delta)
+    
+                // 4. Apply to camera
+                state.camera.position.copy(smoothedCameraPosition)
+                state.camera.lookAt(smoothedCameraTarget)
+            }
         }
     })
 

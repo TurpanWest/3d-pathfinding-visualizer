@@ -1,6 +1,7 @@
 import { useEffect, useRef } from 'react'
 import { addEffect } from '@react-three/fiber'
 import useGame from './stores/useGame'
+import useLevelStore from './stores/useLevelStore'
 
 export default function Interface()
 {
@@ -8,6 +9,9 @@ export default function Interface()
     const restart = useGame((state) => state.restart)
     const phase = useGame((state) => state.phase)
     const activeCharacterId = useGame((state) => state.activeCharacterId)
+
+    const isEditMode = useLevelStore((state) => state.isEditMode)
+    const setEditMode = useLevelStore((state) => state.setEditMode)
 
     // Helper to get color based on ID
     const getCharacterColor = (id: string) => {
@@ -57,6 +61,24 @@ export default function Interface()
 
     return <div className="interface fixed inset-0 w-full h-full font-sans font-normal pointer-events-none">
         
+        {/* Top Right Controls */}
+        <div className="absolute top-10 right-10 flex gap-4 pointer-events-auto">
+             <button 
+                className={`
+                    px-6 py-2 rounded-lg font-bold uppercase tracking-wider transition-all duration-300 shadow-lg
+                    ${isEditMode 
+                        ? 'bg-orange-500 text-white hover:bg-orange-600 ring-4 ring-orange-300' 
+                        : 'bg-white text-[#404040] hover:bg-gray-100'}
+                `}
+                onClick={(e) => {
+                    setEditMode(!isEditMode)
+                    e.currentTarget.blur()
+                }}
+            >
+                {isEditMode ? 'Editing Mode' : 'Play Mode'}
+            </button>
+        </div>
+
         <div className="absolute top-10 left-10 flex flex-col gap-4">
             <div className="text-[#404040] text-xl font-bold tracking-widest mb-4">Time</div>
             <div ref={ time } className="time absolute py-2.5 flex text-[#404040] text-2xl pointer-events-none font-bold tracking-widest mt-4">0.00</div>

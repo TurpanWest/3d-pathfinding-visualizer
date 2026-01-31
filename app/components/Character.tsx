@@ -4,6 +4,7 @@ import { useKeyboardControls } from "@react-three/drei"
 import { useState, useRef, useEffect} from 'react'
 import * as THREE from 'three'
 import useGame from "./stores/useGame"
+import useLevelStore from "./stores/useLevelStore"
 import usePathfinding, { GridNode } from "./stores/usePathfinding"
 
 interface CharacterProps {
@@ -25,6 +26,7 @@ export default function Character({ id, position, color = "slateblue" }: Charact
     const start = useGame((state) => state.start)
     const end = useGame((state) => state.end)
     const restart = useGame((state) => state.restart)
+    const isEditMode = useLevelStore((state) => state.isEditMode) // Read Edit Mode
     
     const isActive = activeCharacterId === id
 
@@ -153,8 +155,8 @@ export default function Character({ id, position, color = "slateblue" }: Charact
 
         const bodyPosition = body.current.translation()
 
-        // 1. Controls (Only if Active)
-        if (isActive) {
+        // 1. Controls (Only if Active AND not in Edit Mode)
+        if (isActive && !isEditMode) {
             const { forward, backward, leftward, rightward } = getKeys()
 
             const impulse = { x:0, y:0, z:0 }
