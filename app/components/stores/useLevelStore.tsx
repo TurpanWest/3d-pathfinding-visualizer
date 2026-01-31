@@ -19,6 +19,28 @@ export interface Obstacle {
     }
 }
 
+// Preset Interface for Sidebar
+export interface ObstaclePreset {
+    name: string
+    type: ObstacleType
+    scale: [number, number, number]
+    materialColor: string
+    movement?: {
+        axis: 'x' | 'y' | 'z'
+        speed: number
+        range: number
+    }
+}
+
+// Presets Definition
+export const OBSTACLE_PRESETS: ObstaclePreset[] = [
+    { name: 'Standard Box', type: 'box', scale: [1, 1, 1], materialColor: 'slategrey' },
+    { name: 'Wide Wall', type: 'box', scale: [4, 1, 1], materialColor: 'slategrey' },
+    { name: 'Tall Pillar', type: 'box', scale: [1, 3, 1], materialColor: 'slategrey' },
+    { name: 'Dynamic (Y-Axis)', type: 'dynamic', scale: [2, 1, 1], materialColor: 'crimson', movement: { axis: 'y', speed: 2, range: 1.5 } },
+    { name: 'Dynamic (Z-Axis)', type: 'dynamic', scale: [2, 1, 1], materialColor: 'royalblue', movement: { axis: 'z', speed: 1.5, range: 3 } },
+]
+
 interface LevelState {
     obstacles: Obstacle[]
     addObstacle: (obstacle: Obstacle) => void
@@ -32,6 +54,10 @@ interface LevelState {
     // Edit Mode
     isEditMode: boolean
     setEditMode: (mode: boolean) => void
+
+    // Dragging New Object state
+    draggedPreset: ObstaclePreset | null
+    setDraggedPreset: (preset: ObstaclePreset | null) => void
 }
 
 const defaultObstacles: Obstacle[] = [
@@ -104,7 +130,11 @@ const useLevelStore = create<LevelState>()(subscribeWithSelector((set) => ({
 
     // Edit Mode
     isEditMode: false,
-    setEditMode: (mode) => set({ isEditMode: mode, selectedObstacleId: null }) // Clear selection on mode switch
+    setEditMode: (mode) => set({ isEditMode: mode, selectedObstacleId: null }), // Clear selection on mode switch
+    
+    // Dragging New Object
+    draggedPreset: null,
+    setDraggedPreset: (preset) => set({ draggedPreset: preset })
 })))
 
 export default useLevelStore

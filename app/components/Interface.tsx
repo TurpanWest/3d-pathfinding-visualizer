@@ -3,6 +3,8 @@ import { addEffect } from '@react-three/fiber'
 import useGame from './stores/useGame'
 import useLevelStore from './stores/useLevelStore'
 
+import EditorSidebar from './EditorSidebar'
+
 export default function Interface()
 {
     const time = useRef<HTMLDivElement>(null)
@@ -12,6 +14,46 @@ export default function Interface()
 
     const isEditMode = useLevelStore((state) => state.isEditMode)
     const setEditMode = useLevelStore((state) => state.setEditMode)
+    const removeObstacle = useLevelStore((state) => state.removeObstacle)
+    const updateObstacle = useLevelStore((state) => state.updateObstacle)
+    const selectedObstacleId = useLevelStore((state) => state.selectedObstacleId)
+    const selectObstacle = useLevelStore((state) => state.selectObstacle)
+
+    // Keyboard Shortcuts
+    useEffect(() => {
+        const handleKeyDown = (e: KeyboardEvent) => {
+            if (!isEditMode) return
+
+            // Delete Object
+            if (e.key === 'Delete' || e.key === 'Backspace') {
+                if (selectedObstacleId) {
+                    removeObstacle(selectedObstacleId)
+                    selectObstacle(null)
+                }
+            }
+
+            // Rotate Object (R key)
+            if (e.key.toLowerCase() === 'r') {
+                if (selectedObstacleId) {
+                    const obstacles = useLevelStore.getState().obstacles
+                    const obstacle = obstacles.find(o => o.id === selectedObstacleId)
+                    if (obstacle) {
+                        const currentRotation = obstacle.rotation
+                        updateObstacle(selectedObstacleId, {
+                            rotation: [
+                                currentRotation[0],
+                                currentRotation[1] + Math.PI / 2,
+                                currentRotation[2]
+                            ]
+                        })
+                    }
+                }
+            }
+        }
+
+        window.addEventListener('keydown', handleKeyDown)
+        return () => window.removeEventListener('keydown', handleKeyDown)
+    }, [isEditMode, selectedObstacleId]) // Dependencies for effect
 
     // Helper to get color based on ID
     const getCharacterColor = (id: string) => {
@@ -117,5 +159,8 @@ export default function Interface()
 
 
         {phase === 'ended' ? <div className="restart absolute top-[40%] left-0 w-full py-2.5 bg-[#00000033] flex items-center justify-center text-white text-[80px] pointer-events-auto cursor-pointer" onClick={ restart }>RESTART</div> : null}
+        
+        {/* Editor Sidebar */}
+        <EditorSidebar />
     </div>
  }

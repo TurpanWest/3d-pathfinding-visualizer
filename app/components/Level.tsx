@@ -1,6 +1,6 @@
 import * as THREE from "three"
 import { CuboidCollider, RigidBody, RapierRigidBody } from "@react-three/rapier"
-import { useMemo, useState, useRef } from "react"
+import { useMemo, useState, useRef, useEffect } from "react"
 import { useFrame } from "@react-three/fiber";
 import { Float, Text, useGLTF } from "@react-three/drei";
 import { Model as SpeakerModel } from './model/Speaker'
@@ -14,6 +14,7 @@ const floor2Material = new THREE.MeshStandardMaterial({color: "greenyellow"});
 const floor3Material = new THREE.MeshStandardMaterial({color: "whitegrey"});
 const wallMaterial = new THREE.MeshStandardMaterial({color: "slategrey"});
 const selectedMaterial = new THREE.MeshStandardMaterial({color: "orange"});
+const ghostMaterial = new THREE.MeshStandardMaterial({color: "orange", transparent: true, opacity: 0.5});
 
 
 export function BlockStart({ position = [0, 0, 0] }: { position?: [number, number, number] })
@@ -253,6 +254,83 @@ function StaticObstacle({ obstacle }: { obstacle: Obstacle }) {
     )
 }
 
+function GhostObject() {
+    const draggedPreset = useLevelStore((state) => state.draggedPreset)
+    const setDraggedPreset = useLevelStore((state) => state.setDraggedPreset)
+    const addObstacle = useLevelStore((state) => state.addObstacle)
+    const isEditMode = useLevelStore((state) => state.isEditMode)
+    
+    const ghostRef = useRef<THREE.Mesh>(null)
+    const dragPlane = useMemo(() => new THREE.Plane(new THREE.Vector3(0, 1, 0), -0.5), [])
+    const planeIntersect = new THREE.Vector3()
+
+    useFrame((state) => {
+        if (!draggedPreset || !ghostRef.current || !isEditMode) return
+
+        state.raycaster.setFromCamera(state.pointer, state.camera)
+        state.raycaster.ray.intersectPlane(dragPlane, planeIntersect)
+        
+        ghostRef.current.position.set(planeIntersect.x, 0.5, planeIntersect.z)
+    })
+
+    // Global event listener for pointer up to drop the item
+    // Since we can't easily attach event to "everything", we attach to the Ghost Mesh
+    // Or better, we attach to the Floor, but Floor is covered by other objects.
+    // Actually, we can use window event listener or r3f useThree().events
+    
+    // A simpler way: The Ghost mesh itself can listen to click? No, because we want to drop it ANYWHERE.
+    // We can add a large invisible plane for capturing the drop?
+    // Or just use the Floor's onClick/onPointerUp?
+    
+    // Let's use a global listener in useEffect
+    const { raycaster, camera, pointer } =  useMemo(() => ({ raycaster: new THREE.Raycaster(), camera: null as any, pointer: null as any }), [])
+    // Wait, we need access to the current state in event listener.
+    
+    // Let's implement the drop logic on the Ghost mesh itself? 
+    // No, pointer events on ghost mesh block the floor.
+    // We want to detect "Pointer Up" globally.
+    
+    useEffect(() => {
+        const handlePointerUp = () => {
+            const currentPreset = useLevelStore.getState().draggedPreset
+            if (currentPreset && isEditMode) {
+                // Calculate position
+                // We need access to r3f state here, which is hard inside useEffect
+                // BUT, the ghost mesh is already at the correct position!
+                if (ghostRef.current) {
+                    const pos = ghostRef.current.position
+                    
+                    addObstacle({
+                        id: `obstacle-${Date.now()}`,
+                        type: currentPreset.type,
+                        position: [pos.x, pos.y, pos.z],
+                        rotation: [0, 0, 0],
+                        scale: currentPreset.scale,
+                        materialColor: currentPreset.materialColor,
+                        movement: currentPreset.movement
+                    })
+                    
+                    setDraggedPreset(null)
+                }
+            }
+        }
+        
+        window.addEventListener('pointerup', handlePointerUp)
+        return () => window.removeEventListener('pointerup', handlePointerUp)
+    }, [isEditMode]) // Re-bind if edit mode changes, though store access is direct
+
+    if (!draggedPreset || !isEditMode) return null
+
+    return (
+        <mesh 
+            ref={ghostRef}
+            geometry={boxGeometry}
+            material={ghostMaterial}
+            scale={draggedPreset.scale}
+        />
+    )
+}
+
 export function Obstacles(){
     const obstacles = useLevelStore((state) => state.obstacles)
 
@@ -350,6 +428,7 @@ export function Level()
     return <>       
         <BlockStart position={[0,0,0]}/> 
         <Obstacles />
+        <GhostObject />
         <Floor />
         <Bounds length={ 20 }/>
         {/* <Speaker position={[-10, -3, -15]} rotation={[0, Math.PI/6, 0]}/> */}
