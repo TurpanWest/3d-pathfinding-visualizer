@@ -3,8 +3,6 @@ import { subscribeWithSelector } from 'zustand/middleware'
 
 interface GameState 
 {
-    blocksCount: number
-    blocksSeed:number
     phase:any
     startTime: number
     endTime: number
@@ -19,8 +17,6 @@ interface GameState
 }
 
 const useGame = create<GameState>()( subscribeWithSelector((set, get) => ({
-    blocksCount: 10,
-    blocksSeed:0,
     phase:'ready',
     startTime:0,
     endTime:0,

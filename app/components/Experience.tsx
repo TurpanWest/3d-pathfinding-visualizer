@@ -9,14 +9,11 @@ import useGame from "./stores/useGame"
 import usePathfinding from "./stores/usePathfinding"
 import { useKeyboardControls } from "@react-three/drei";
 import { useEffect } from "react";
-import GridDebug from "./GridDebug";
-import GridBaker from "./GridBaker";
 import CameraController from "./CameraController";
+import GridBaker from "./GridBaker";
 
 export default function Experience() {
 
-  const blocksCount = useGame((state) => state.blocksCount)
-  const blocksSeed = useGame((state) => state.blocksSeed)
   const toggleCharacter = useGame((state) => state.toggleCharacter)
   const initGrid = usePathfinding((state) => state.initGrid)
   const [subscribeKeys] = useKeyboardControls()
@@ -46,7 +43,6 @@ export default function Experience() {
         <Character id="ally-2" position={[2, 1, 0]} color="hotpink" />
         <CameraController />
         <GridBaker />
-        {/* <GridDebug /> */}
       </Physics>
     </>
   );

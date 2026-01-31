@@ -76,7 +76,7 @@ export default function Interface()
                         className="w-10 h-10 rounded-full shadow-inner flex items-center justify-center font-bold text-[#404040] text-xs border-2 border-white/20"
                         style={{ backgroundColor: getCharacterColor(id) }}
                     >
-                        {id === 'player' ? 'L' : id === 'ally-1' ? 'S' : 'H'}
+                        {id === 'player' ? '1' : id === 'ally-1' ? '2' : '3'}
                     </div>
 
                     {/* Info */}

@@ -25,7 +25,6 @@ export default function Character({ id, position, color = "slateblue" }: Charact
     const start = useGame((state) => state.start)
     const end = useGame((state) => state.end)
     const restart = useGame((state) => state.restart)
-    const blocksCount = useGame((state) => state.blocksCount)
     
     const isActive = activeCharacterId === id
 
@@ -231,8 +230,16 @@ export default function Character({ id, position, color = "slateblue" }: Charact
             const maxSpeed = 5
             const volume = Math.min(speed / maxSpeed, 1)
             audio.volume = volume
-            
-            if (speed > 0.5) {
+
+            // Check if character is on ground
+            const origin = body.current.translation()
+            origin.y -= 0.31
+            const direction = { x:0, y: -1, z:0}
+            const ray = new rapier.Ray(origin, direction)
+            const hit:any = world.castRay(ray, 10, true)
+            const isGrounded = hit && hit.timeOfImpact < 0.15
+
+            if (speed > 0.5 && isGrounded) {
                 if (audio.paused) audio.play().catch(() => {})
             } else {
                 if (!audio.paused) audio.pause()
@@ -240,10 +247,10 @@ export default function Character({ id, position, color = "slateblue" }: Charact
         }
 
         // 3. Game Logic (Win/Lose)
-        if (bodyPosition.z < -(blocksCount * 4 + 2))
-        {
-            end()
-        }
+        // if (bodyPosition.z < -(blocksCount * 4 + 2))
+        // {
+        //     end()
+        // }
         if (bodyPosition.y < -4)
         {
             restart()

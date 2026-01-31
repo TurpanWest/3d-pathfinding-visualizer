@@ -20,18 +20,17 @@ export function BlockStart({ position = [0, 0, 0] }: { position?: [number, numbe
         <Float floatIntensity={0.25} rotationIntensity={0.25}>
             <Text 
                 font="bebas-neue-v9-latin-regular.woff" 
-                scale={0.30} 
-                maxWidth={8} 
+                scale={0.40} 
                 lineHeight={1.2} 
                 letterSpacing={0.06} 
-                textAlign="right" 
-                position={[0.75, 0.9, 0]} 
+                textAlign="center" 
+                position={[0.75, 1.2,  -0.4]} 
                 rotation-y={-0.25}
                 color="white"
             >
-                WASD / Arrows to Move
-                Space to Jump
-                Q to Swap Squad
+                WASD / Arrows to Move{"\n"}
+                Space to Jump{"\n"}
+                Q to Swap Ball
                 <meshBasicMaterial toneMapped={false}/>
             </Text>
         </Float>
@@ -39,7 +38,7 @@ export function BlockStart({ position = [0, 0, 0] }: { position?: [number, numbe
         geometry={boxGeometry}
         material={floor1Material} 
         position={ [ 0, -0.1, 0] } 
-        scale={[ 4, 0.2, 4 ]} 
+        scale={[ 8, 0.2, 8 ]} 
         receiveShadow
         />
     </group>
@@ -61,15 +60,11 @@ export function Dynamic( {position= [0,0,0]} : {position: [number, number, numbe
     return <RigidBody ref={obstacale} type="kinematicPosition" position={[-3.5, 0.5, 4]} rotation={[0, 0, 0]}>
                 <mesh geometry={boxGeometry} material={wallMaterial} scale={[4, 1, 1]} castShadow />
             </RigidBody>
+            {/* Wall 1: Left Barrier */}
 }
 
 export function Obstacles(){
     return <group>
-        {/* Wall 1: Left Barrier */}
-        {/* <RigidBody type="fixed" position={[-3.5, 0.5, 4]} rotation={[0, 0, 0]}>
-            <mesh geometry={boxGeometry} material={wallMaterial} scale={[4, 1, 1]} castShadow />
-        </RigidBody> */}
-
         {/* Wall 2: Right Barrier */}
         <RigidBody type="fixed" position={[3.5, 0.5, 7]} rotation={[0, 0, 0]}>
             <mesh geometry={boxGeometry} material={wallMaterial} scale={[4, 1, 1]} castShadow />

@@ -15,7 +15,6 @@ export default function GridBaker() {
 
         const bake = () => {
             isBaking.current = true
-            console.log("🍞 Baking navigation grid...")
             let updatedCount = 0
 
             // We iterate through all grid nodes
@@ -42,12 +41,6 @@ export default function GridBaker() {
                     if (hit) {
                         const surfaceHeight = 5 - hit.timeOfImpact
                         
-                        // Debug log for the specific obstacle position (Adjusted for new obstacles)
-                        // Wall at [-3.5, 0.5, 4]
-                        if (Math.abs(node.worldX - (-3.5)) < 0.5 && Math.abs(node.worldZ - 4) < 0.5) {
-                           console.log(`🔍 Checking Left Wall at (${node.worldX}, ${node.worldZ}). Hit height: ${surfaceHeight}`)
-                        }
-
                         if (surfaceHeight > 0.2) { // Lower threshold for obstacles (was 1.0)
                             // Too high (Wall/Obstacle)
                             node.walkable = false
@@ -73,8 +66,6 @@ export default function GridBaker() {
                 grid: newGrid, 
                 gridVersion: state.gridVersion + 1 
             }))
-            
-            console.log(`✅ Baking complete! Updated ${updatedCount} nodes.`)
         }
 
         // Delay slightly to ensure physics world is populated
